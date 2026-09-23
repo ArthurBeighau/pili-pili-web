@@ -1,0 +1,11 @@
+# Blueprint Render : déploiement en un clic depuis un dépôt Git.
+services:
+  - type: web
+    name: pili-pili
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 100 --timeout 120 --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true

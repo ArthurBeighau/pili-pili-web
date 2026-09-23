@@ -1,0 +1,270 @@
+/* ============================================================
+   Pili Pili — thème piment. Rouge braise, crème, curcuma.
+   ============================================================ */
+:root {
+  --ember: #E23A2E;        /* rouge piment, couleur signature */
+  --ember-deep: #A81C13;   /* rouge profond */
+  --ember-dark: #7a1109;
+  --charcoal: #1c1512;     /* fond, brun-noir chaud */
+  --charcoal-2: #2a201c;
+  --paper: #F5EEDF;        /* crème des cartes */
+  --paper-line: #e2d6bd;
+  --gold: #F2A93B;         /* curcuma, accent chaud (vainqueur) */
+  --teal: #2FA79B;         /* accent secondaire */
+  --ink: #241a15;          /* texte sur crème */
+  --muted: #b7a99a;
+
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+  font-family: "Fredoka", system-ui, sans-serif;
+  color: var(--paper);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #3a1a12 0%, transparent 60%),
+    repeating-linear-gradient(135deg, #1f1712 0 22px, #1c1512 22px 44px);
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+.screen {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 16px;
+  min-height: 100%;
+}
+.hidden { display: none !important; }
+
+/* ---------------------------- Boutons ---------------------------- */
+.btn {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 999px;
+  padding: 13px 22px;
+  cursor: pointer;
+  transition: transform .08s ease, filter .15s ease, background .15s ease;
+  color: #fff;
+}
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn-primary { background: var(--ember); box-shadow: 0 6px 0 var(--ember-dark); }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-primary:active { box-shadow: 0 2px 0 var(--ember-dark); transform: translateY(3px); }
+.btn-ghost { background: rgba(255, 255, 255, .10); border: 1.5px solid rgba(255, 255, 255, .22); }
+.btn-ghost:hover { background: rgba(255, 255, 255, .18); }
+.btn-mini { padding: 6px 12px; font-size: .82rem; background: rgba(255, 255, 255, .12); }
+.btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+/* ---------------------------- Toast ---------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%) translateY(-140%);
+  background: var(--ember-deep);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  transition: transform .25s ease;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ============================ LOBBY ============================ */
+#lobby { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+.lobby-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--charcoal-2);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 22px;
+  padding: 28px 24px 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.logo { display: flex; flex-direction: column; line-height: .82; margin: 4px 0 6px; }
+.logo-line {
+  font-family: "Bungee", sans-serif;
+  font-size: clamp(3.2rem, 16vw, 5rem);
+  color: var(--paper);
+  letter-spacing: 2px;
+  text-shadow: 4px 4px 0 var(--ember), 8px 8px 0 var(--ember-dark);
+}
+.logo-line:nth-child(2) { color: var(--ember); text-shadow: 4px 4px 0 var(--charcoal), 7px 7px 0 rgba(0,0,0,.4); }
+.tagline { color: var(--muted); margin: 14px 4px 22px; line-height: 1.4; }
+
+.field { display: block; text-align: left; margin: 0 0 14px; }
+.field > span { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 6px; padding-left: 4px; }
+.field input, .field select, .join-manual input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.05rem;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, .14);
+  background: rgba(0, 0, 0, .25);
+  color: var(--paper);
+}
+.field input:focus, .field select:focus, .join-manual input:focus {
+  outline: none; border-color: var(--gold);
+}
+.field select { appearance: none; }
+
+.btn-primary { width: 100%; margin-top: 4px; }
+.or { color: var(--muted); margin: 16px 0 12px; font-size: .85rem; }
+.join-manual { display: flex; gap: 8px; }
+.join-manual input { text-transform: uppercase; text-align: center; letter-spacing: 4px; font-weight: 700; }
+.join-manual .btn { width: auto; white-space: nowrap; }
+
+.join-block { margin-bottom: 8px; }
+.join-invite { color: var(--paper); background: rgba(242, 169, 59, .12); border: 1px solid rgba(242, 169, 59, .3); padding: 12px; border-radius: 12px; }
+.join-invite strong { font-family: "Bungee", sans-serif; letter-spacing: 2px; color: var(--gold); }
+
+.conn-status { font-size: .8rem; color: var(--muted); margin: 16px 0 0; }
+.conn-status.ok { color: var(--teal); }
+.lobby-foot { color: var(--muted); font-size: .82rem; }
+
+/* ============================ TABLE ============================ */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.room-info { display: flex; align-items: center; gap: 8px; }
+.room-label { font-size: .75rem; color: var(--muted); }
+.room-code { font-family: "Bungee", sans-serif; letter-spacing: 3px; color: var(--gold); font-size: 1.1rem; }
+.round-info { font-size: .9rem; color: var(--muted); }
+.round-info b { color: var(--paper); }
+
+/* Adversaires */
+.opponents { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.player-chip {
+  flex: 1 1 130px;
+  background: var(--charcoal-2);
+  border: 1.5px solid rgba(255, 255, 255, .07);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  min-width: 120px;
+}
+.player-chip.turn { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(242,169,59,.25); }
+.player-chip.disconnected { opacity: .5; }
+.player-chip .pc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.player-chip .pc-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-chip .badge { font-size: .68rem; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,.12); color: var(--paper); }
+.player-chip .badge.dealer { background: var(--teal); color: #06302c; }
+.player-chip .pc-stats { display: flex; justify-content: space-between; margin-top: 8px; font-size: .82rem; color: var(--muted); }
+.player-chip .pc-stats b { color: var(--paper); }
+.pilis-row { margin-top: 6px; font-size: .95rem; letter-spacing: 1px; min-height: 1.1em; }
+
+/* Zone centrale */
+.table {
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(226,58,46,.18) 0%, transparent 55%),
+    var(--charcoal-2);
+  border: 1.5px solid rgba(255, 255, 255, .06);
+  border-radius: 20px;
+  padding: 18px 14px;
+  margin-bottom: 12px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.phase-banner { font-size: 1.05rem; font-weight: 600; text-align: center; min-height: 1.4em; }
+.phase-banner .hl { color: var(--gold); }
+.trick-area { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; min-height: 118px; align-items: center; }
+.trick-slot { text-align: center; }
+.trick-slot .who { font-size: .78rem; color: var(--muted); margin-bottom: 5px; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.table-log { font-size: .8rem; color: var(--muted); text-align: center; min-height: 1.1em; }
+
+/* Cartes */
+.card {
+  width: 74px; height: 104px;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--paper-line);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 6px 14px rgba(0,0,0,.35);
+  user-select: none;
+}
+.card .num { font-family: "Bungee", sans-serif; font-size: 1.9rem; line-height: 1; }
+.card .corner { position: absolute; font-family: "Bungee", sans-serif; font-size: .72rem; color: var(--ember); }
+.card .corner.tl { top: 6px; left: 8px; }
+.card .corner.br { bottom: 6px; right: 8px; transform: rotate(180deg); }
+.card .pip { position: absolute; font-size: .8rem; opacity: .5; }
+.card .pip.a { top: 6px; right: 8px; }
+.card .pip.b { bottom: 6px; left: 8px; }
+.card.joker {
+  background: linear-gradient(160deg, var(--ember) 0%, var(--ember-deep) 100%);
+  color: #fff; border-color: var(--gold);
+}
+.card.joker .num { font-size: 2.4rem; }
+.card.joker .label { font-family: "Bungee", sans-serif; font-size: .6rem; letter-spacing: 1px; margin-top: 2px; }
+.card.trick-card { animation: drop .22s ease; }
+.card.winner { outline: 3px solid var(--gold); box-shadow: 0 0 18px rgba(242,169,59,.6); }
+@keyframes drop { from { transform: translateY(-14px) scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Zone du joueur */
+.me-area { background: var(--charcoal-2); border: 1.5px solid rgba(255,255,255,.06); border-radius: 20px; padding: 16px 14px; }
+.bet-controls { text-align: center; margin-bottom: 6px; }
+.bet-title { font-weight: 600; margin: 4px 0 12px; }
+.bet-buttons { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.bet-buttons .btn { min-width: 52px; padding: 12px 0; }
+.bet-btn { background: rgba(255,255,255,.10); border: 1.5px solid rgba(255,255,255,.2); font-family: "Bungee", sans-serif; }
+.bet-btn:hover { background: var(--ember); border-color: var(--ember); }
+
+.hand-title { font-size: .85rem; color: var(--muted); margin: 0 0 10px; }
+.hand { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.hand .card { cursor: pointer; transition: transform .12s ease; }
+.hand .card.playable:hover { transform: translateY(-8px); }
+.hand.disabled .card { cursor: default; filter: saturate(.7) brightness(.94); }
+.hand.disabled .card:hover { transform: none; }
+
+.host-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+.waiting-note { text-align: center; color: var(--muted); margin-top: 10px; font-size: .9rem; }
+
+/* ============================ MODALES ============================ */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 60; }
+.modal-card { background: var(--charcoal-2); border: 1.5px solid rgba(255,255,255,.1); border-radius: 20px; padding: 24px; max-width: 440px; width: 100%; box-shadow: var(--shadow); text-align: center; }
+.modal-card h3 { font-family: "Bungee", sans-serif; margin: 0 0 8px; color: var(--gold); letter-spacing: 1px; }
+.modal-card p { color: var(--muted); margin: 0 0 16px; }
+.joker-value { font-family: "Bungee", sans-serif; font-size: 3rem; color: var(--ember); }
+#joker-slider { width: 100%; margin: 10px 0 6px; accent-color: var(--ember); }
+.joker-quick { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.joker-quick .btn { font-size: .82rem; padding: 8px 12px; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+
+/* Bilan de manche */
+.summary-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+.summary-table th, .summary-table td { padding: 9px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.08); }
+.summary-table th { color: var(--muted); font-size: .8rem; font-weight: 500; }
+.summary-table td { font-size: .95rem; }
+.summary-table .ok { color: var(--teal); font-weight: 700; }
+.summary-table .bad { color: var(--ember); font-weight: 700; }
+.summary-table .win-row td { color: var(--gold); font-weight: 700; }
+.trophy { font-size: 2.4rem; margin-bottom: 6px; }
+
+@media (max-width: 480px) {
+  .card { width: 62px; height: 88px; }
+  .card .num { font-size: 1.55rem; }
+  .card.joker .num { font-size: 2rem; }
+  .screen { padding: 12px; }
+  .logo-line { text-shadow: 3px 3px 0 var(--ember), 6px 6px 0 var(--ember-dark); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card.trick-card { animation: none; }
+  .btn, .hand .card { transition: none; }
+}

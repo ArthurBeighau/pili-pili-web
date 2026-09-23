@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pili Pili — jeu de cartes en ligne</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <!-- Bandeau d'erreur / info -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <!-- ============================ LOBBY ============================ -->
+  <main id="lobby" class="screen">
+    <div class="lobby-card">
+      <div class="logo">
+        <span class="logo-line">PILI</span>
+        <span class="logo-line">PILI</span>
+      </div>
+      <p class="tagline">Devine combien de plis tu vas remporter… et tiens ta promesse. Ça pique. 🌶️</p>
+
+      <label class="field">
+        <span>Ton pseudo</span>
+        <input id="name-input" type="text" maxlength="20" placeholder="Arthur" autocomplete="off" />
+      </label>
+
+      <div id="join-block" class="join-block hidden">
+        <p class="join-invite">Tu as été invité·e dans le salon <strong id="join-code"></strong>.</p>
+        <button id="join-btn" class="btn btn-primary">Rejoindre la partie</button>
+      </div>
+
+      <div id="create-block">
+        <label class="field">
+          <span>Cartes par joueur</span>
+          <select id="cards-select">
+            <option value="3">3 cartes (rapide)</option>
+            <option value="5" selected>5 cartes (règle de base)</option>
+            <option value="7">7 cartes</option>
+            <option value="10">10 cartes (long)</option>
+          </select>
+        </label>
+        <button id="create-btn" class="btn btn-primary">Créer un salon</button>
+        <div class="or">ou</div>
+        <div class="join-manual">
+          <input id="code-input" type="text" maxlength="4" placeholder="CODE" autocomplete="off" />
+          <button id="join-manual-btn" class="btn btn-ghost">Rejoindre</button>
+        </div>
+      </div>
+
+      <p class="conn-status" id="conn-status">Connexion…</p>
+    </div>
+    <footer class="lobby-foot">Règles de base · sans cartes Mission · 2 à 8 joueurs</footer>
+  </main>
+
+  <!-- ============================ JEU ============================ -->
+  <main id="game" class="screen hidden">
+    <header class="topbar">
+      <div class="room-info">
+        <span class="room-label">Salon</span>
+        <span class="room-code" id="room-code">----</span>
+        <button id="copy-btn" class="btn btn-mini">Copier le lien</button>
+      </div>
+      <div class="round-info" id="round-info"></div>
+    </header>
+
+    <section class="opponents" id="opponents"></section>
+
+    <section class="table" id="table">
+      <div class="phase-banner" id="phase-banner"></div>
+      <div class="trick-area" id="trick-area"></div>
+      <div class="table-log" id="table-log"></div>
+    </section>
+
+    <section class="me-area" id="me-area">
+      <!-- Contrôles de pari -->
+      <div class="bet-controls hidden" id="bet-controls">
+        <p class="bet-title">Combien de plis vas-tu remporter ?</p>
+        <div class="bet-buttons" id="bet-buttons"></div>
+      </div>
+
+      <!-- Ta main -->
+      <div class="hand-block" id="hand-block">
+        <p class="hand-title" id="hand-title">Ta main</p>
+        <div class="hand" id="hand"></div>
+      </div>
+
+      <!-- Boutons hôte (lobby / manche) -->
+      <div class="host-actions" id="host-actions"></div>
+    </section>
+  </main>
+
+  <!-- ============================ MODALES ============================ -->
+  <!-- Choix de la valeur du Joker -->
+  <div id="joker-modal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Joker 🔥</h3>
+      <p>Choisis la valeur du Joker pour ce pli.</p>
+      <div class="joker-value" id="joker-value">28</div>
+      <input id="joker-slider" type="range" min="0" max="56" value="28" />
+      <div class="joker-quick">
+        <button data-v="0" class="btn btn-ghost">0 (plus faible)</button>
+        <button data-v="56" class="btn btn-ghost">56 (plus fort)</button>
+      </div>
+      <div class="modal-actions">
+        <button id="joker-cancel" class="btn btn-ghost">Annuler</button>
+        <button id="joker-confirm" class="btn btn-primary">Jouer le Joker</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilan de manche / fin de partie -->
+  <div id="summary-modal" class="modal hidden">
+    <div class="modal-card">
+      <h3 id="summary-title">Fin de la manche</h3>
+      <div id="summary-body"></div>
+      <div class="modal-actions" id="summary-actions"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+          crossorigin="anonymous"
+          onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js';"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
