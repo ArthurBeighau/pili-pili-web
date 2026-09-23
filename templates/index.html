@@ -42,6 +42,10 @@
             <option value="10">10 cartes (long)</option>
           </select>
         </label>
+        <label class="toggle">
+          <input id="missions-toggle" type="checkbox" checked />
+          <span>Cartes Mission <small>(une règle spéciale à chaque manche)</small></span>
+        </label>
         <button id="create-btn" class="btn btn-primary">Créer un salon</button>
         <div class="or">ou</div>
         <div class="join-manual">
@@ -67,6 +71,27 @@
     </header>
 
     <section class="opponents" id="opponents"></section>
+
+    <!-- Bannière de mission -->
+    <section class="mission-banner hidden" id="mission-banner">
+      <span class="mission-tag" id="mission-tag">Mission</span>
+      <div class="mission-text">
+        <span class="mission-title" id="mission-title"></span>
+        <span class="mission-desc" id="mission-desc"></span>
+      </div>
+    </section>
+
+    <!-- Pierre-feuille-ciseaux (avant la 1re manche) -->
+    <section class="rps hidden" id="rps">
+      <h2 class="rps-heading">Qui commence ?</h2>
+      <p class="rps-sub" id="rps-sub">Pierre – Feuille – Ciseaux : le gagnant devient le premier donneur.</p>
+      <div class="rps-choices" id="rps-choices">
+        <button class="rps-btn" data-c="rock"><span>🪨</span>Pierre</button>
+        <button class="rps-btn" data-c="paper"><span>📄</span>Feuille</button>
+        <button class="rps-btn" data-c="scissors"><span>✂️</span>Ciseaux</button>
+      </div>
+      <div class="rps-result" id="rps-result"></div>
+    </section>
 
     <section class="table" id="table">
       <div class="phase-banner" id="phase-banner"></div>
@@ -107,6 +132,27 @@
       <div class="modal-actions">
         <button id="joker-cancel" class="btn btn-ghost">Annuler</button>
         <button id="joker-confirm" class="btn btn-primary">Jouer le Joker</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission « Fardeau partagé » : désigner un joueur -->
+  <div id="designate-modal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Fardeau partagé</h3>
+      <p>Désigne un joueur : en fin de manche, tu écoperas aussi de ses Pilis.</p>
+      <div class="designate-list" id="designate-list"></div>
+    </div>
+  </div>
+
+  <!-- Mission « Cadeau empoisonné » : donner des cartes -->
+  <div id="give-modal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Cadeau empoisonné</h3>
+      <p id="give-instructions">Choisis les cartes à donner.</p>
+      <div class="hand give-hand" id="give-hand"></div>
+      <div class="modal-actions">
+        <button id="give-confirm" class="btn btn-primary" disabled>Donner</button>
       </div>
     </div>
   </div>

@@ -79,9 +79,10 @@ def on_create_room(data):
     except (TypeError, ValueError):
         cards = 5
     cards = max(MIN_HAND, min(MAX_HAND, cards))
+    use_missions = bool(data.get("useMissions", True))
 
     code = new_room_code(rooms.keys())
-    game = Game(code, cards_per_hand=cards)
+    game = Game(code, cards_per_hand=cards, use_missions=use_missions)
     rooms[code] = game
     try:
         game.add_or_reconnect(player_id, name, request.sid)
@@ -178,6 +179,48 @@ def on_restart_game(data):
     p = game.player_by_sid(request.sid)
     try:
         game.restart(p.id)
+    except GameError as e:
+        return send_error(str(e))
+    broadcast_state(game)
+
+
+@socketio.on("rps_choice")
+def on_rps_choice(data):
+    data = data or {}
+    game = find_room_by_sid(request.sid)
+    if not game:
+        return send_error("Vous n'êtes dans aucun salon.")
+    p = game.player_by_sid(request.sid)
+    try:
+        game.rps_choice(p.id, data.get("choice"))
+    except GameError as e:
+        return send_error(str(e))
+    broadcast_state(game)
+
+
+@socketio.on("set_designation")
+def on_set_designation(data):
+    data = data or {}
+    game = find_room_by_sid(request.sid)
+    if not game:
+        return send_error("Vous n'êtes dans aucun salon.")
+    p = game.player_by_sid(request.sid)
+    try:
+        game.set_designation(p.id, data.get("targetId"))
+    except GameError as e:
+        return send_error(str(e))
+    broadcast_state(game)
+
+
+@socketio.on("give_cards")
+def on_give_cards(data):
+    data = data or {}
+    game = find_room_by_sid(request.sid)
+    if not game:
+        return send_error("Vous n'êtes dans aucun salon.")
+    p = game.player_by_sid(request.sid)
+    try:
+        game.give_cards(p.id, data.get("cardIds"))
     except GameError as e:
         return send_error(str(e))
     broadcast_state(game)

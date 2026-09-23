@@ -268,3 +268,85 @@ body {
   .card.trick-card { animation: none; }
   .btn, .hand .card { transition: none; }
 }
+
+/* ============================================================
+   Ajouts : Missions + Pierre-Feuille-Ciseaux
+   ============================================================ */
+
+/* Interrupteur Missions dans le lobby */
+.toggle { display: flex; align-items: center; gap: 10px; text-align: left; margin: 2px 0 16px; cursor: pointer; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--ember); flex: 0 0 auto; }
+.toggle span { font-size: .95rem; color: var(--paper); }
+.toggle small { display: block; color: var(--muted); font-size: .78rem; }
+
+/* Bannière de mission */
+.mission-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(120deg, rgba(242,169,59,.16), rgba(226,58,46,.10));
+  border: 1.5px solid rgba(242,169,59,.4);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+}
+.mission-banner.expert { border-color: var(--ember); background: linear-gradient(120deg, rgba(226,58,46,.20), rgba(168,28,19,.12)); }
+.mission-tag {
+  flex: 0 0 auto; font-family: "Bungee", sans-serif; font-size: .62rem; letter-spacing: 1px;
+  background: var(--gold); color: #3a2600; padding: 5px 9px; border-radius: 8px; text-transform: uppercase;
+}
+.mission-banner.expert .mission-tag { background: var(--ember); color: #fff; }
+.mission-text { display: flex; flex-direction: column; gap: 2px; }
+.mission-title { font-weight: 700; color: var(--paper); }
+.mission-desc { font-size: .85rem; color: var(--muted); line-height: 1.3; }
+
+/* Pierre-feuille-ciseaux */
+.rps {
+  background: var(--charcoal-2);
+  border: 1.5px solid rgba(255,255,255,.06);
+  border-radius: 20px; padding: 26px 16px; margin-bottom: 12px; text-align: center;
+}
+.rps-heading { font-family: "Bungee", sans-serif; color: var(--gold); margin: 0 0 6px; letter-spacing: 1px; }
+.rps-sub { color: var(--muted); margin: 0 0 18px; }
+.rps-choices { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.rps-btn {
+  font-family: inherit; font-weight: 600; font-size: 1rem; color: var(--paper);
+  background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.18);
+  border-radius: 16px; padding: 16px 20px; cursor: pointer; min-width: 96px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: transform .1s ease, background .15s ease, border-color .15s ease;
+}
+.rps-btn span { font-size: 2.2rem; line-height: 1; }
+.rps-btn:hover { background: var(--ember); border-color: var(--ember); transform: translateY(-3px); }
+.rps-btn:active { transform: translateY(0); }
+.rps-result { margin-top: 18px; }
+.rps-throws { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.rps-throw { background: rgba(255,255,255,.08); padding: 8px 12px; border-radius: 10px; font-weight: 600; }
+.rps-throw.out { opacity: .4; text-decoration: line-through; }
+.rps-verdict { margin-top: 10px; color: var(--gold); font-weight: 700; min-height: 1.2em; }
+
+/* Dos de carte (pari à l'aveugle) */
+.card-back {
+  background: repeating-linear-gradient(45deg, var(--ember-deep) 0 10px, var(--ember-dark) 10px 20px);
+  border-color: var(--ember-dark); color: #fff;
+}
+.card-back .back-mark { font-size: 1.8rem; opacity: .8; }
+
+/* Mains ouvertes (mission « cartes sur table ») */
+.mini-hand { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+.mini {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 28px; padding: 0 4px;
+  background: var(--paper); color: var(--ink); border-radius: 5px;
+  font-family: "Bungee", sans-serif; font-size: .72rem; border: 1px solid var(--paper-line);
+}
+.mini.joker { background: var(--ember); color: #fff; border-color: var(--gold); }
+
+/* Carte bloquée (mission « tout ou rien ») */
+.hand .card.blocked { opacity: .35; filter: grayscale(.5); cursor: not-allowed; }
+.hand .card.blocked:hover { transform: none; }
+
+/* Sélection de cartes à donner */
+.give-hand .card.selectable { cursor: pointer; transition: transform .1s ease, outline .1s ease; }
+.give-hand .card.selectable:hover { transform: translateY(-6px); }
+.give-hand .card.selected { outline: 3px solid var(--gold); transform: translateY(-6px); box-shadow: 0 0 16px rgba(242,169,59,.5); }
+
+/* Liste de désignation */
+.designate-list { display: flex; flex-direction: column; gap: 10px; }
+.designate-list .btn { width: 100%; }
