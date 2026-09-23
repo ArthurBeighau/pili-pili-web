@@ -27,6 +27,11 @@ MAX_HAND = 12
 MIN_PLAYERS = 2
 MAX_PLAYERS = 8
 
+RAND_MIN = 3   # bornes du mode « nombre de cartes aléatoire »
+RAND_MAX = 7
+
+MAX_CHAT = 60  # nombre de messages de chat conservés
+
 ROOM_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 
 RPS_BEATS = {"rock": "scissors", "scissors": "paper", "paper": "rock"}
@@ -195,9 +200,12 @@ class GameError(Exception):
 
 
 class Game:
-    def __init__(self, room_id, cards_per_hand=DEFAULT_HAND, use_missions=True):
+    def __init__(self, room_id, cards_per_hand=DEFAULT_HAND, use_missions=True,
+                 random_cards=False):
         self.room_id = room_id
-        self.cards_per_hand = int(cards_per_hand)
+        self.random_cards = bool(random_cards)
+        self.base_cards = int(cards_per_hand)      # utilisé en mode fixe
+        self.cards_per_hand = int(cards_per_hand)  # nombre de la manche courante
         self.use_missions = bool(use_missions)
         self.players = []
         self.host_id = None
@@ -223,6 +231,10 @@ class Game:
         self.rps_participants = []
         self.rps_choices = {}
         self.rps_last = None       # {throws:{id:shape}, tie:bool, eliminated:[ids]}
+
+        # Chat de salon + votes pour passer la mission
+        self.chat = []             # [{name, text}]
+        self.skip_votes = set()    # ids ayant voté pour changer de mission
 
     # ------------------------- joueurs / connexions ------------------- #
     def get_player(self, player_id):
@@ -269,7 +281,9 @@ class Game:
             raise GameError("La partie est déjà lancée.")
         if len(self.players) < MIN_PLAYERS:
             raise GameError("Il faut au moins 2 joueurs pour commencer.")
-        need = self.cards_per_hand * len(self.players)
+        # Vérifie qu'au moins la config minimale tient dans le paquet.
+        min_cards = RAND_MIN if self.random_cards else self.base_cards
+        need = min_cards * len(self.players)
         if self.use_missions:
             need += len(self.players)  # marge pour la mission « carte surprise »
         if need > (DECK_SIZE + 1):
@@ -336,14 +350,29 @@ class Game:
             self._add_log(f"Départage entre {names}…")
 
     # ------------------------ distribution / manche ------------------- #
+    def _max_cards(self):
+        """Nombre de cartes maximal par joueur qui tient dans le paquet
+        (en gardant une marge pour la mission « carte surprise »)."""
+        n = len(self.players)
+        margin = 1 if self.use_missions else 0
+        hi = (DECK_SIZE + 1) // n - margin
+        return max(RAND_MIN, min(RAND_MAX, hi))
+
     def _deal_round(self):
         self.round_number += 1
         prev_key = self.mission["key"] if self.mission else None
+
+        # Nombre de cartes de la manche : fixe ou aléatoire (3 à 7).
+        if self.random_cards:
+            self.cards_per_hand = random.randint(RAND_MIN, self._max_cards())
+        else:
+            self.cards_per_hand = self.base_cards
 
         if self.use_missions:
             self.mission = draw_mission(len(self.players), self.cards_per_hand, avoid_key=prev_key)
         else:
             self.mission = None
+        self.skip_votes = set()
 
         deck = make_deck()
         random.shuffle(deck)
@@ -426,6 +455,46 @@ class Game:
             self._after_bets()
         else:
             self.turn_index = (self.turn_index + 1) % len(self.players)
+
+    # ----------------------- passer une mission ----------------------- #
+    def _can_skip(self):
+        """On ne peut changer de mission qu'en début de manche, tant que
+        personne n'a encore parié (pour éviter de « fuir » une mission
+        après avoir vu son jeu et misé)."""
+        return (
+            self.use_missions
+            and self.mission is not None
+            and self.phase == "betting"
+            and all(p.bet is None for p in self.players)
+        )
+
+    def vote_skip(self, player_id):
+        if not self._can_skip():
+            raise GameError("Impossible de passer la mission maintenant.")
+        if self.get_player(player_id) is None:
+            raise GameError("Joueur inconnu.")
+        # bascule le vote (on peut changer d'avis)
+        if player_id in self.skip_votes:
+            self.skip_votes.discard(player_id)
+            return
+        self.skip_votes.add(player_id)
+        connected = [p.id for p in self.players if p.connected]
+        if connected and all(pid in self.skip_votes for pid in connected):
+            prev = self.mission["key"]
+            self.mission = draw_mission(len(self.players), self.cards_per_hand, avoid_key=prev)
+            self.skip_votes = set()
+            self._add_log(f"Mission passée → {self.mission['title']}.")
+
+    # ------------------------------- chat ----------------------------- #
+    def add_chat(self, player_id, text):
+        p = self.get_player(player_id)
+        if not p:
+            return
+        text = (text or "").strip()[:300]
+        if not text:
+            return
+        self.chat.append({"name": p.name, "text": text})
+        self.chat = self.chat[-MAX_CHAT:]
 
     def _after_bets(self):
         """Applique les effets de mission déclenchés après les paris."""
@@ -732,6 +801,7 @@ class Game:
             "roomId": self.room_id,
             "phase": self.phase,
             "cardsPerHand": self.cards_per_hand,
+            "randomCards": self.random_cards,
             "useMissions": self.use_missions,
             "maxPilis": MAX_PILIS,
             "roundNumber": self.round_number,
@@ -741,6 +811,7 @@ class Game:
             "lastTrick": self.last_trick,
             "turnPlayerId": turn_id,
             "log": list(self.log),
+            "chat": list(self.chat),
             "mission": self._public_mission(),
             "you": {
                 "id": me.id if me else None,
@@ -757,6 +828,14 @@ class Game:
 
         if self.phase == "betting" and state["yourTurn"] and me is not None:
             state["legalBets"] = self.legal_bets(me)
+
+        if self._can_skip():
+            connected = [p.id for p in self.players if p.connected]
+            state["skip"] = {
+                "votes": len(self.skip_votes),
+                "needed": len(connected),
+                "youVoted": player_id in self.skip_votes,
+            }
 
         if self.phase == "playing" and state["yourTurn"] and me is not None and self._flag("high_or_low"):
             state["allowedCardIds"] = self.allowed_card_ids(me)

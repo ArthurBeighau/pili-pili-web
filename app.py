@@ -74,15 +74,21 @@ def on_create_room(data):
     if not player_id:
         return send_error("Identifiant joueur manquant.")
 
-    try:
-        cards = int(data.get("cardsPerHand", 5))
-    except (TypeError, ValueError):
+    raw_cards = data.get("cardsPerHand", 5)
+    random_cards = (str(raw_cards).lower() == "random")
+    if random_cards:
         cards = 5
-    cards = max(MIN_HAND, min(MAX_HAND, cards))
+    else:
+        try:
+            cards = int(raw_cards)
+        except (TypeError, ValueError):
+            cards = 5
+        cards = max(MIN_HAND, min(MAX_HAND, cards))
     use_missions = bool(data.get("useMissions", True))
 
     code = new_room_code(rooms.keys())
-    game = Game(code, cards_per_hand=cards, use_missions=use_missions)
+    game = Game(code, cards_per_hand=cards, use_missions=use_missions,
+                random_cards=random_cards)
     rooms[code] = game
     try:
         game.add_or_reconnect(player_id, name, request.sid)
@@ -223,6 +229,30 @@ def on_give_cards(data):
         game.give_cards(p.id, data.get("cardIds"))
     except GameError as e:
         return send_error(str(e))
+    broadcast_state(game)
+
+
+@socketio.on("vote_skip")
+def on_vote_skip(data):
+    game = find_room_by_sid(request.sid)
+    if not game:
+        return send_error("Vous n'êtes dans aucun salon.")
+    p = game.player_by_sid(request.sid)
+    try:
+        game.vote_skip(p.id)
+    except GameError as e:
+        return send_error(str(e))
+    broadcast_state(game)
+
+
+@socketio.on("chat_message")
+def on_chat_message(data):
+    data = data or {}
+    game = find_room_by_sid(request.sid)
+    if not game:
+        return send_error("Vous n'êtes dans aucun salon.")
+    p = game.player_by_sid(request.sid)
+    game.add_chat(p.id, data.get("text"))
     broadcast_state(game)
 
 

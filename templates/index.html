@@ -36,8 +36,9 @@
         <label class="field">
           <span>Cartes par joueur</span>
           <select id="cards-select">
+            <option value="random" selected>🎲 Aléatoire (3 à 7)</option>
             <option value="3">3 cartes (rapide)</option>
-            <option value="5" selected>5 cartes (règle de base)</option>
+            <option value="5">5 cartes (règle de base)</option>
             <option value="7">7 cartes</option>
             <option value="10">10 cartes (long)</option>
           </select>
@@ -79,6 +80,7 @@
         <span class="mission-title" id="mission-title"></span>
         <span class="mission-desc" id="mission-desc"></span>
       </div>
+      <button class="btn btn-mini mission-skip hidden" id="mission-skip">Passer</button>
     </section>
 
     <!-- Pierre-feuille-ciseaux (avant la 1re manche) -->
@@ -115,6 +117,20 @@
       <!-- Boutons hôte (lobby / manche) -->
       <div class="host-actions" id="host-actions"></div>
     </section>
+
+    <!-- Chat de salon -->
+    <button id="chat-toggle" class="chat-toggle" aria-label="Ouvrir le chat">💬</button>
+    <aside id="chat" class="chat">
+      <div class="chat-head">
+        <span>Chat</span>
+        <button id="chat-close" class="chat-close" aria-label="Fermer">✕</button>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" maxlength="300" placeholder="Écris un message…" autocomplete="off" />
+        <button id="chat-send" class="btn btn-primary">Envoyer</button>
+      </div>
+    </aside>
   </main>
 
   <!-- ============================ MODALES ============================ -->

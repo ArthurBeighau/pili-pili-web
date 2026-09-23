@@ -78,7 +78,7 @@ function setConn(text, ok) {
     socket.emit("create_room", {
       name,
       playerId,
-      cardsPerHand: parseInt($("cards-select").value, 10),
+      cardsPerHand: $("cards-select").value,
       useMissions: $("missions-toggle").checked,
     });
   });
@@ -125,8 +125,9 @@ function render() {
 
   const ri = $("round-info");
   if (state.phase === "lobby") {
+    const cards = state.randomCards ? "🎲 3-7" : state.cardsPerHand;
     const mode = state.useMissions ? " · avec Missions 🎯" : "";
-    ri.innerHTML = `<b>${state.players.length}</b> joueur(s) · ${state.cardsPerHand} cartes/joueur${mode}`;
+    ri.innerHTML = `<b>${state.players.length}</b> joueur(s) · ${cards} cartes/joueur${mode}`;
   } else if (state.phase === "rps") {
     ri.innerHTML = `Pierre – Feuille – Ciseaux`;
   } else {
@@ -140,9 +141,11 @@ function render() {
   renderMeArea();
   renderPostBet();
   renderSummaryModal();
+  renderChat();
 }
 
 // ---- Bannière de mission ----
+let skipWired = false;
 function renderMissionBanner() {
   const b = $("mission-banner");
   const inGame = ["betting", "post_bet", "playing", "round_end"].includes(state.phase);
@@ -152,6 +155,23 @@ function renderMissionBanner() {
   $("mission-tag").textContent = state.mission.expert ? "Mission experte" : "Mission";
   $("mission-title").textContent = state.mission.title;
   $("mission-desc").textContent = state.mission.desc;
+
+  // Bouton « Passer » (vote à l'unanimité, avant tout pari)
+  const skipBtn = $("mission-skip");
+  if (!skipWired) {
+    skipBtn.addEventListener("click", () => socket.emit("vote_skip", {}));
+    skipWired = true;
+  }
+  if (state.skip) {
+    skipBtn.classList.remove("hidden");
+    const { votes, needed, youVoted } = state.skip;
+    skipBtn.textContent = needed > 1
+      ? `Passer (${votes}/${needed})${youVoted ? " ✓" : ""}`
+      : "Passer";
+    skipBtn.classList.toggle("voted", !!youVoted);
+  } else {
+    skipBtn.classList.add("hidden");
+  }
 }
 
 // ---- Pierre-feuille-ciseaux ----
@@ -573,6 +593,52 @@ $("copy-btn").addEventListener("click", async () => {
     prompt("Copie ce lien :", link);
   }
 });
+
+// ---------------------------------------------------------------------- //
+// Chat de salon
+// ---------------------------------------------------------------------- //
+let chatWired = false;
+let lastChatLen = 0;
+function initChat() {
+  if (chatWired) return;
+  chatWired = true;
+  const send = () => {
+    const input = $("chat-input");
+    const text = (input.value || "").trim();
+    if (!text) return;
+    socket.emit("chat_message", { text });
+    input.value = "";
+  };
+  $("chat-send").addEventListener("click", send);
+  $("chat-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); send(); }
+  });
+  $("chat-toggle").addEventListener("click", () => {
+    $("chat").classList.toggle("open");
+    $("chat-toggle").classList.remove("has-unread");
+    const box = $("chat-messages");
+    box.scrollTop = box.scrollHeight;
+  });
+  $("chat-close").addEventListener("click", () => $("chat").classList.remove("open"));
+}
+function renderChat() {
+  initChat();
+  const box = $("chat-messages");
+  const msgs = state.chat || [];
+  const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+  box.innerHTML = msgs.map((m) => {
+    const mine = m.name === (state.you && state.you.name);
+    return `<div class="chat-msg ${mine ? "mine" : ""}">
+      <span class="chat-name">${escapeHtml(m.name)}</span>
+      <span class="chat-text">${escapeHtml(m.text)}</span></div>`;
+  }).join("");
+  if (nearBottom || msgs.length !== lastChatLen) box.scrollTop = box.scrollHeight;
+  // pastille si nouveau message et chat fermé (mobile)
+  if (msgs.length > lastChatLen && !$("chat").classList.contains("open")) {
+    $("chat-toggle").classList.add("has-unread");
+  }
+  lastChatLen = msgs.length;
+}
 
 // ---------------------------------------------------------------------- //
 // Utilitaires
